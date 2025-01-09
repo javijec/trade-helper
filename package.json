@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "chokidar": "^4.0.3",
+    "electron": "^33.3.1",
+    "electron-notifier": "^0.0.0",
+    "node-notifier": "^10.0.1"
+  }
+}
