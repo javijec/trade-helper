@@ -1,4 +1,4 @@
-const { ipcRenderer, remote } = require("electron");
+const { ipcRenderer } = require("electron");
 
 function checkAndCloseWindow() {
   const logElement = document.getElementById("log");
@@ -20,6 +20,8 @@ function addNotification(message, type) {
   const notificationElement = document.createElement("div");
   notificationElement.className = `notification ${type}`;
   notificationElement.textContent = message;
+  notificationElement.style.fontSize = "12px";
+  notificationElement.style.height = "60px";
 
   const deleteButton = document.createElement("button");
   deleteButton.className = "delete-button";
@@ -28,15 +30,11 @@ function addNotification(message, type) {
 
   notificationElement.appendChild(deleteButton);
   logElement.appendChild(notificationElement);
-  resizeWindow();
 }
 
 ipcRenderer.on("log-purchase", (event, message) => addNotification(message, "purchase"));
 ipcRenderer.on("log-sale", (event, message) => addNotification(message, "sale"));
 ipcRenderer.on("check-close-log-window", () => checkAndCloseWindow());
 
-function resizeWindow() {
-  const logElement = document.getElementById("log");
-  const height = logElement.children.length * 50 + 100; // Adjust height based on number of notifications
-  remote.getCurrentWindow().setSize(remote.getCurrentWindow().getBounds().width, height);
-}
+// Ensure resizeWindow is globally accessible
+window.resizeWindow = () => {};
