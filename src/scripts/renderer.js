@@ -31,7 +31,6 @@ class FileMonitor {
 
     // Inicia el monitoreo del archivo
     this.intervalId = setInterval(() => this.checkNewLines(), 200);
-    this.log(`Monitoreando cambios en ${this.filePath}...`);
   }
 
   checkNewLines() {
@@ -90,7 +89,6 @@ class FileMonitor {
   log(message, action) {
     // Envía el mensaje al proceso principal
     ipcRenderer.send(action === "COMPRA" ? "log-purchase" : "log-sale", message);
-    addLogEntry(message, action === "COMPRA" ? "purchase" : "sale");
   }
 }
 
