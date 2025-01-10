@@ -5,16 +5,20 @@ let mainWindow;
 let logWindow;
 let tray;
 let notificationCount = 0;
-let logWindowBounds = { width: 800, height: 600, x: 0, y: 0 };
+let logWindowBounds = { width: 200, height: 400, x: 0, y: 0 };
 
 function createMainWindow() {
+  // Crea la ventana principal
   mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 400,
+    height: 400,
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
     },
+    alwaysOnTop: true,
+    x: 0,
+    y: 0,
   });
 
   mainWindow.loadFile("index.html");
@@ -26,7 +30,8 @@ function createMainWindow() {
     }
   });
 
-  tray = new Tray(path.join(__dirname, "react-logo.png"));
+  // Crea el icono de la bandeja del sistema
+  tray = new Tray(path.join(__dirname, "/assets/icon.png"));
   const contextMenu = Menu.buildFromTemplate([
     { label: "Show App", click: () => mainWindow.show() },
     {
@@ -43,6 +48,7 @@ function createMainWindow() {
 }
 
 function createLogWindow() {
+  // Crea la ventana de log
   logWindow = new BrowserWindow({
     width: logWindowBounds.width,
     height: logWindowBounds.height,
@@ -67,6 +73,7 @@ function createLogWindow() {
 }
 
 function handleNotification(event, message, type) {
+  // Maneja las notificaciones
   if (!logWindow || notificationCount === 0) {
     createLogWindow();
   }
@@ -118,7 +125,7 @@ ipcMain.on("decrement-notification-count", () => {
       .executeJavaScript('document.getElementById("log")')
       .then((element) => {
         if (element && element.children) {
-          const height = element.children.length * 50 + 100; // Adjust height based on number of notifications
+          const height = element.children.length * 50 + 100;
           logWindow.setSize(logWindowBounds.width, height);
         }
       })

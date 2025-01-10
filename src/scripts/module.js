@@ -1,6 +1,5 @@
 const fs = require("fs");
 const path = require("path");
-const notifier = require("node-notifier");
 
 class FileMonitor {
   constructor(filePath) {
@@ -28,7 +27,7 @@ class FileMonitor {
     // Configurar el polling cada 2 segundos
     this.intervalId = setInterval(() => {
       this.checkNewLines();
-    }, 500);
+    }, 200);
 
     console.log(`Monitoreando cambios en ${this.filePath}...`);
   }
@@ -53,18 +52,8 @@ class FileMonitor {
         if (line.trim()) {
           if (line.includes("@From")) {
             console.log("COMPRA");
-            notifier.notify({
-              title: "Nuevo mensaje detectado",
-              message: "COMPRA",
-              sound: true,
-            });
           } else if (line.includes("@To")) {
             console.log("VENTA");
-            notifier.notify({
-              title: "Nuevo mensaje detectado",
-              message: "VENTA",
-              sound: true,
-            });
           }
         }
       });

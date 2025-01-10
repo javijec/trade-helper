@@ -1,0 +1,29 @@
+body {
+  background-color: #121212;
+  color: #ffffff;
+  font-family: Arial, sans-serif;
+}
+.notification {
+  background-color: #333333;
+  border-radius: 5px;
+  padding: 10px;
+  margin: 10px 0;
+  position: relative;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+.sale {
+  border-left: 5px solid green;
+}
+.purchase {
+  border-left: 5px solid red;
+}
+.delete-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  color: #ffffff;
+  font-size: 16px;
+}

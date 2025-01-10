@@ -2,8 +2,8 @@ const fs = require("fs");
 const path = require("path");
 const { ipcRenderer, remote } = require("electron");
 
-const configPath = path.join(__dirname, "config.json");
-const translationsPath = path.join(__dirname, "translations.json");
+const configPath = path.join(__dirname, "/files/config.json");
+const translationsPath = path.join(__dirname, "/files/translations.json");
 
 class FileMonitor {
   constructor(filePath) {
@@ -14,11 +14,13 @@ class FileMonitor {
   }
 
   start() {
+    // Verifica si ya se está monitoreando el archivo
     if (this.watching) {
       this.log("Ya se está monitoreando el archivo");
       return;
     }
 
+    // Verifica si el archivo existe
     if (!fs.existsSync(this.filePath)) {
       this.log(`El archivo ${this.filePath} no existe`);
       return;
@@ -27,7 +29,8 @@ class FileMonitor {
     this.lastSize = fs.statSync(this.filePath).size;
     this.watching = true;
 
-    this.intervalId = setInterval(() => this.checkNewLines(), 500);
+    // Inicia el monitoreo del archivo
+    this.intervalId = setInterval(() => this.checkNewLines(), 200);
     this.log(`Monitoreando cambios en ${this.filePath}...`);
   }
 
@@ -35,6 +38,7 @@ class FileMonitor {
     const stats = fs.statSync(this.filePath);
     const currentSize = stats.size;
 
+    // Verifica si hay nuevas líneas en el archivo
     if (currentSize > this.lastSize) {
       const buffer = Buffer.alloc(currentSize - this.lastSize);
       const fileDescriptor = fs.openSync(this.filePath, "r");
@@ -45,6 +49,7 @@ class FileMonitor {
       const newContent = buffer.toString();
       const lines = newContent.split("\n");
 
+      // Procesa cada línea nueva
       lines.forEach((line) => {
         if (line.trim()) {
           if (line.includes("@From")) {
@@ -63,15 +68,18 @@ class FileMonitor {
     const regex = /@(To|From) (\w+): (.+) listed for (\d+) (\w+) in Standard \(stash tab ".*"; position: (.+)\)/;
     const match = line.match(regex);
 
+    // Si la línea coincide con el formato esperado, procesa la información
     if (match) {
       const [, , name, item, quantity, orb, position] = match;
       const translatedItem = translations[item] || item;
       const message = `${action} ${name} ${translatedItem.replace(/.*?your /, "")} ${quantity} ${orb} ${position}`;
       this.log(message, action);
+      console.log(message); // Log the message to the terminal
     }
   }
 
   stop() {
+    // Detiene el monitoreo del archivo
     if (this.intervalId) {
       clearInterval(this.intervalId);
       this.watching = false;
@@ -80,16 +88,20 @@ class FileMonitor {
   }
 
   log(message, action) {
+    // Envía el mensaje al proceso principal
     ipcRenderer.send(action === "COMPRA" ? "log-purchase" : "log-sale", message);
+    addLogEntry(message, action === "COMPRA" ? "purchase" : "sale");
   }
 }
 
 function saveConfig(filePath) {
+  // Guarda la configuración en un archivo JSON
   const config = { filePath };
   fs.writeFileSync(configPath, JSON.stringify(config));
 }
 
 function loadConfig() {
+  // Carga la configuración desde un archivo JSON
   if (fs.existsSync(configPath)) {
     const config = JSON.parse(fs.readFileSync(configPath));
     return config.filePath;
@@ -98,6 +110,7 @@ function loadConfig() {
 }
 
 function setupEventListeners() {
+  // Configura los event listeners para los botones y eventos de IPC
   document.getElementById("startButton").addEventListener("click", () => {
     const filePath = document.getElementById("filePath").value;
     if (filePath) {
@@ -124,6 +137,7 @@ function setupEventListeners() {
 }
 
 function addLogEntry(message, type) {
+  // Añade una entrada de log en la interfaz de usuario
   const logElement = document.getElementById("log");
   const entryElement = document.createElement("div");
   entryElement.className = type;
@@ -138,5 +152,7 @@ function addLogEntry(message, type) {
   logElement.appendChild(entryElement);
 }
 
-document.getElementById("filePath").value = loadConfig();
-setupEventListeners();
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("filePath").value = loadConfig();
+  setupEventListeners();
+});
